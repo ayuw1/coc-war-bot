@@ -8,6 +8,8 @@ const MAX_LOG_LINES = Number(process.env.MAX_LOG_LINES || 30);
 const SHOW_MEMBER_DETAILS = String(process.env.SHOW_MEMBER_DETAILS || 'true').toLowerCase() === 'true';
 const SHOW_ATTACK_LOG = String(process.env.SHOW_ATTACK_LOG || 'true').toLowerCase() === 'true';
 const TELEGRAM_NOTIFY_ON_STATE_CHANGE = String(process.env.TELEGRAM_NOTIFY_ON_STATE_CHANGE || 'true').toLowerCase() === 'true';
+// New option: send initial war summary to Telegram on startup for testing
+const TELEGRAM_SEND_ON_START = String(process.env.TELEGRAM_SEND_ON_START || 'false').toLowerCase() === 'true';
 
 const TG_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TG_CHAT = process.env.TELEGRAM_CHAT_ID;
@@ -189,11 +191,12 @@ async function notifyTelegram(text) {
 let lastMessage = null;
 let lastState = null;
 
+// runOnce now returns the current summary + state for optional use by caller
 async function runOnce() {
   const data = await fetchCurrentWar();
   if (!data) {
     console.log('[' + new Date().toLocaleString('id-ID') + '] Tidak bisa mengambil data war.');
-    return;
+    return { summary: null, currentState: null };
   }
 
   const summary = buildWarSummary(data);
@@ -220,6 +223,8 @@ async function runOnce() {
       lastState = currentState;
     }
   }
+
+  return { summary, currentState };
 }
 
 (async () => {
@@ -229,7 +234,21 @@ async function runOnce() {
   console.log(`Member detail: ${SHOW_MEMBER_DETAILS ? 'ON' : 'OFF'}`);
   console.log(`Attack log: ${SHOW_ATTACK_LOG ? 'ON' : 'OFF'}`);
   console.log(`Telegram notify on state change: ${TELEGRAM_NOTIFY_ON_STATE_CHANGE ? 'ON' : 'OFF'}`);
+  console.log(`Telegram send on start (test): ${TELEGRAM_SEND_ON_START ? 'ON' : 'OFF'}`);
 
-  await runOnce();
+  // First run
+  const first = await runOnce();
+
+  // If user requested a test notification on start, send the current summary once
+  if (TELEGRAM_SEND_ON_START && TG_TOKEN && TG_CHAT && first.summary) {
+    try {
+      await notifyTelegram(`CoC War initial summary for ${CLAN_TAG} (test):\n\n${first.summary}`);
+      console.log('Sent initial test summary to Telegram.');
+    } catch (e) {
+      console.error('Failed to send initial test summary:', e.message);
+    }
+  }
+
+  // Continue periodic checks
   setInterval(runOnce, INTERVAL);
 })();

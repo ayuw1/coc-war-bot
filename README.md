@@ -54,6 +54,10 @@ SHOW_ATTACK_LOG=true
 
 # Telegram: hanya kirim saat state war berubah
 TELEGRAM_NOTIFY_ON_STATE_CHANGE=true
+
+# Jika mau tes Telegram saat bot mulai, set true untuk mengirim ringkasan awal (sekali)
+TELEGRAM_SEND_ON_START=false
+
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=
 ```
@@ -67,6 +71,7 @@ TELEGRAM_CHAT_ID=
 - `SHOW_MEMBER_DETAILS`: `true` / `false`
 - `SHOW_ATTACK_LOG`: `true` / `false`
 - `TELEGRAM_NOTIFY_ON_STATE_CHANGE`: `true` agar Telegram hanya kirim saat state berubah
+- `TELEGRAM_SEND_ON_START`: `true` untuk mengirim ringkasan war awal satu kali saat bot mulai (untuk pengujian)
 - `TELEGRAM_BOT_TOKEN`: token bot Telegram (opsional)
 - `TELEGRAM_CHAT_ID`: chat id tujuan notifikasi (opsional)
 
@@ -113,6 +118,7 @@ Interval cek: 60 detik
 Member detail: ON
 Attack log: ON
 Telegram notify on state change: ON
+Telegram send on start (test): OFF
 
 [12/10/2026, 12:00:00]
 War State: inWar
