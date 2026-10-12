@@ -1,4 +1,124 @@
-node_modules/
-.env
-npm-debug.log*
-.DS_Store
+# CoC War Bot
+
+Bot untuk memantau status war Clash of Clans di Termux menggunakan API resmi Clash of Clans. Bot ini membaca data war clan dari API, menampilkan detail member, log serangan, dan bisa mengirim notifikasi ke Telegram jika diaktifkan.
+
+## Fitur
+
+- Melihat status war saat ini (`currentwar`)
+- Menampilkan ringkasan score war
+- Menampilkan detail member clan dan opponent
+- Menampilkan log serangan per member (opsional)
+- Mengirim notifikasi Telegram (opsional)
+- Dapat dijalankan di Termux dan tetap berjalan di background
+
+## Persiapan di Termux
+
+```bash
+pkg update && pkg upgrade
+pkg install nodejs git -y
+```
+
+## Clone repo
+
+```bash
+git clone https://github.com/ayuw1/coc-war-bot.git
+cd coc-war-bot
+```
+
+## Konfigurasi
+
+Copy file `.env.example` ke `.env`:
+
+```bash
+cp .env.example .env
+```
+
+Edit isi `.env`:
+
+```env
+COC_API_TOKEN=your_clash_of_clans_api_token_here
+CLAN_TAG=#YOURCLANTAG
+CHECK_INTERVAL=60
+MAX_LOG_LINES=30
+SHOW_MEMBER_DETAILS=true
+SHOW_ATTACK_LOG=true
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
+```
+
+### Penjelasan variabel
+
+- `COC_API_TOKEN`: API key dari Clash of Clans Developer Portal
+- `CLAN_TAG`: tag clan, contoh `#ABCD1234`
+- `CHECK_INTERVAL`: interval pengecekan dalam detik
+- `MAX_LOG_LINES`: jumlah log serangan yang ditampilkan
+- `SHOW_MEMBER_DETAILS`: `true`/`false`
+- `SHOW_ATTACK_LOG`: `true`/`false`
+- `TELEGRAM_BOT_TOKEN`: token bot Telegram (opsional)
+- `TELEGRAM_CHAT_ID`: chat id tujuan notifikasi (opsional)
+
+## Mendapatkan token Clash of Clans
+
+Buka:
+https://developer.clashofclans.com/
+
+Lalu buat API key baru, copy token dan masukkan ke `COC_API_TOKEN`.
+
+## Install dependency
+
+```bash
+npm install
+```
+
+## Jalankan bot
+
+```bash
+npm start
+```
+
+## Jalankan di background di Termux
+
+```bash
+nohup npm start >/dev/null 2>&1 &
+```
+
+Atau pakai `pm2`:
+
+```bash
+npm install -g pm2
+pm2 start index.js --name coc-war-bot
+pm2 save
+pm2 startup
+```
+
+## Contoh output
+
+```text
+War State: inWar
+Clan: Dark Legion | Stars: 40 | Destruction: 71.25%
+Opponent: Thunder Riders | Stars: 35 | Destruction: 62.10%
+
+Clan Members (detail):
+- 1  PlayerA             TH13 | Stars 5 | Destr 75.00% | Attacks 1/2 | Best 3★/62.50%
+- 2  PlayerB             TH12 | Stars 2 | Destr 31.00% | Attacks 0/2 | Best 0★/0.00%
+
+Opponent Members (detail):
+- 1  Enemy1              TH13 | Stars 3 | Destr 43.00% | Attacks 1/2 | Best 2★/55.00%
+
+Clan Attack Log:
+- PlayerA -> #PPQ12345 : 3★ / 75.00%
+```
+
+## Catatan penting
+
+- Jangan pernah commit file `.env` ke GitHub.
+- API Clash of Clans punya batas rate limit; hindari mengecek terlalu cepat.
+- Jika war tidak sedang berjalan, API biasanya akan mengembalikan data `notFound` atau `state` yang sesuai.
+
+## Lisensi
+
+MIT
+
+## Repo
+
+https://github.com/ayuw1/coc-war-bot
